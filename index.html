@@ -1,0 +1,690 @@
+<!--
+  
+
+      -->
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TOPOGRAPHIE - MODULE 9 </title>
+<style>
+:root { --orange:#ff6600; --noir:#222; --gris:#f7f7f8; --ok:#2e7d32; --ko:#c62828; }
+*{box-sizing:border-box}
+body { font-family: "Segoe UI", Tahoma, sans-serif; background: var(--gris); color: var(--noir); margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:16px; }
+.banner { background:var(--noir); color:#fff; padding:10px; border-radius:10px; text-align:center; font-weight:700; width:100%; max-width:920px; margin-bottom:15px; }
+h1 { color:var(--orange); text-align:center; margin:8px 0; }
+.subtitle { color:#555; text-align:center; margin-bottom:18px; }
+.page-mode{ color:var(--orange); text-align:center; margin:6px 0 0; font-weight:700; font-size:20px; }
+.section { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 6px rgba(0,0,0,.07); width:100%; max-width:920px; margin:10px 0; }
+.controls{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+input[type="text"], input[type="number"] { padding:10px 12px; border:1px solid #ccc; border-radius:8px; font-size:15px; }
+input[type="number"]{ width:140px; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-top:10px; }
+.figure{ background:#fafafa; border:1px solid #e6e6e6; border-radius:10px; padding:8px; text-align:center; }
+.figure img{ max-width:100%; height:auto; border-radius:6px; }
+.figure .legend{ font-size:13px; color:#666; margin-top:6px; }
+.qblock{ margin-top:8px; padding:10px 12px; border-left:6px solid var(--orange); border-radius:8px; background:#fff; }
+table { border-collapse: collapse; }
+table th, table td { text-align:center; border:1px solid #e6e6e6; padding:8px; }
+.resp-table { width:100%; border-collapse:collapse; margin-top:8px; }
+.resp-table th { background:var(--orange); color:#fff; padding:12px; font-weight:700; }
+.resp-table td { text-align:center; padding:12px; border:1px solid #e6e6e6; }
+.resp-input{ width:220px; padding:10px 12px; border-radius:12px; border:1px solid #ddd; font-size:15px; text-align:center; }
+.resp-select{ width:140px; padding:8px 10px; border-radius:10px; border:1px solid #ddd; font-size:14px; }
+.qtitle{ font-weight:700; margin-bottom:8px; }
+.instructions{ background:#fff; border-left:6px solid var(--orange); border-radius:10px; padding:14px 16px; box-shadow:0 2px 6px rgba(0,0,0,0.03); }
+.row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0; }
+.small{ font-size:12px; color:#666; }
+button { background:var(--orange); color:#fff; border:none; padding:10px 16px; border-radius:8px; font-size:15px; cursor:pointer; }
+button[disabled]{ opacity:.6; cursor:not-allowed; }
+button:hover:not([disabled]){ filter:brightness(.97); }
+hr{ border:none; border-top:1px solid #eee; margin:14px 0; }
+.badge{ padding:3px 8px; border-radius:999px; font-size:12px; background:#eee; }
+.ok{ color:var(--ok); }
+.ko{ color:var(--ko); }
+.result-line{ display:flex; justify-content:space-between; padding:6px 8px; background:#fafafa; border:1px solid #eee; border-radius:8px; margin-top:6px; }
+kbd{ background:#f0f0f0; padding:2px 6px; border-radius:6px; border:1px solid #e0e0e0; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+/* Mise en page du bloc "Résumé de l'évaluation" (style d'après l'image) */
+.correction-summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:stretch; }
+.correction-summary-grid .summary-card{ background:#fff; border-radius:12px; padding:20px 24px; box-shadow:0 6px 18px rgba(0,0,0,0.06); position:relative; overflow:visible; }
+
+/* Styles des labels / valeurs — gauche: labels empilés, valeurs orange */
+.correction-summary-grid .summary-card div{ text-align:left; }
+.correction-summary-grid .summary-card .label{ color:#777; margin-bottom:6px; }
+.correction-summary-grid .summary-card .value{ color:var(--orange); font-weight:700; font-size:18px; margin-bottom:10px; }
+
+/* Droite : lignes avec label à gauche et valeur alignée à droite */
+.correction-summary-grid .summary-card .score-row{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; }
+.correction-summary-grid .summary-card .score-row .label{ margin:0; }
+.correction-summary-grid .summary-card .score-row .value{ margin:0; color:var(--orange); font-weight:700; }
+
+@media (max-width:680px){
+  .correction-summary-grid{ grid-template-columns:1fr; padding-left:12px; }
+  .correction-summary-grid::before{ left:6px; }
+}
+</style>
+</head>
+<body>
+
+<div class="banner">📚 TOPOGRAPHIE - MODULE 9 📚</div>
+
+<!-- PAGE 1: ACCUEIL -->
+<div id="page-accueil" class="section" style="display:block;">
+  <h1 id="presentation-title" style="text-align:center; color:var(--orange);">Mise en application</h1>
+  <div style="text-align: center;">
+    <h2 style="color: var(--noir); margin-top: 0; font-size: 24px;">Nivellement par cheminement</h2>
+    <input type="text" id="candidate" placeholder="Nom de l'élève" autocomplete="off" style="width: 100%; max-width: 400px; padding: 12px; font-size: 16px; margin: 16px 0;" />
+    <div id="verificationMessage" style="min-height: 24px; margin: 8px 0; font-size: 15px; font-weight: 600;"></div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button id="startBtn" style="padding: 12px 32px; font-size: 16px;">Exercice d'application</button>
+      <button id="trainingBtn" style="padding: 12px 32px; font-size: 16px; background:#3b82f6;">🎯 Exercice d'entrainement</button>
+      <button id="evalBtn" style="padding: 12px 32px; font-size: 16px; background:#2f855a;">📊 Évaluation</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- PAGE: PRÉSENTATION / TABLEAUX -->
+<div id="page-presentation" class="section" style="display:none;">
+  <div class="page-mode" id="modeDisplayPresentation"></div>
+  <h1 id="page-title">Présentation</h1>
+  <div class="grid">
+    <div class="figure">
+      <img src="https://raw.githubusercontent.com/CETPC-Christophe/module9-application-nivellement/refs/heads/main/module9.png" alt="exercice" />
+      <div class="legend">Schéma du nivellement</div>
+    </div>
+    <div>
+      <div class="qblock">
+        <div class="qtitle">Données de l'exercice</div>
+        <div>Altitude de référence : <span id="altrefDisplay">--</span> m</div>
+        
+      </div>
+    </div>
+  </div>
+
+  <hr />
+  <div class="qblock" style="margin-bottom:12px;">
+    <div class="qtitle">Question 1</div>
+    <ul style="text-align:left; margin:8px 12px;">
+      <li>Calculer les vérifications stadimétriques de tous les points</li>
+      <li>Calculer les écarts de lecture</li>
+    </ul>
+    <div class="qtitle">Question 2</div>
+    <ul style="text-align:left; margin:8px 12px;">
+      <li>Calculer les altitudes du terrain naturel de tous les points</li>
+    </ul>
+  </div>
+  <div>
+    <div class="qtitle">Tableau des relevés</div>
+    <table id="relevesTable" style="width:100%; border-collapse:collapse; margin-top:8px;">
+      <thead>
+        <tr style="text-align:left; background:#fafafa"><th>Station</th><th>Point</th><th>Lecture stadimétrique haute (mm)</th><th>Lecture niveleur (mm)</th><th>Lecture stadimétrique basse (mm)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:12px; display:flex; justify-content:center; gap:8px;">
+    <button id="backHome">Retour accueil</button>
+    <button id="toQ1">Question 1 — Vérifications des lectures</button>
+  </div>
+</div>
+
+<!-- PAGE Q1: VÉRIFICATION LECTURES -->
+<div id="page-q1" class="section" style="display:none;">
+  <div class="page-mode" id="modeDisplayQ1"></div>
+  <h1>Question 1 — Vérifications des lectures</h1>
+  <div class="grid">
+    <div class="figure">
+      <img src="https://raw.githubusercontent.com/CETPC-Christophe/module9-application-nivellement/refs/heads/main/module9.png" alt="exercice" />
+      <div class="legend">Schéma du nivellement</div>
+    </div>
+    <div>
+      <div class="qblock">
+        <div class="qtitle">Données</div>
+        <div>Altitude de référence : <span id="altrefDisplayQ1">--</span> m</div>
+        <div class="small">Mode : <span id="modeLabelQ1">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+  <div>
+    <div class="qtitle">Tableau des relevés</div>
+    <table id="relevesTableQ1" style="width:100%; border-collapse:collapse; margin-top:8px;">
+      <thead>
+        <tr style="text-align:left; background:#fafafa"><th>Station</th><th>Point</th><th>Lecture stadimétrique haute (mm)</th><th>Lecture niveleur (mm)</th><th>Lecture stadimétrique basse (mm)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="q1Inputs">
+    <div id="q1Container"></div>
+  </div>
+  <div style="margin-top:12px; display:flex; justify-content:center; gap:8px;">
+    <button id="toPresentationFromQ1">Retour présentation</button>
+    <button id="toQ2FromQ1">Question 2 — Calcul des altitudes</button>
+  </div>
+</div>
+
+<!-- PAGE Q2: CALCUL ALTITUDES -->
+<div id="page-q2" class="section" style="display:none;">
+  <div class="page-mode" id="modeDisplayQ2"></div>
+  <h1>Question 2 — Calcul des altitudes</h1>
+  <div class="grid">
+    <div class="figure">
+      <img src="https://raw.githubusercontent.com/CETPC-Christophe/module9-application-nivellement/refs/heads/main/module9.png" alt="exercice" />
+      <div class="legend">Schéma du nivellement</div>
+    </div>
+    <div>
+      <div class="qblock">
+        <div class="qtitle">Données</div>
+        <div>Altitude de référence : <span id="altrefDisplayQ2">--</span> m</div>
+        <div class="small">Mode : <span id="modeLabelQ2">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+  <div>
+    <div class="qtitle">Tableau des relevés</div>
+    <table id="relevesTableQ2" style="width:100%; border-collapse:collapse; margin-top:8px;">
+      <thead>
+        <tr style="text-align:left; background:#fafafa"><th>Station</th><th>Point</th><th>Lecture stadimétrique haute (mm)</th><th>Lecture niveleur (mm)</th><th>Lecture stadimétrique basse (mm)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="q2Inputs">
+    <div id="q2Container"></div>
+  </div>
+  <div style="margin-top:12px; display:flex; justify-content:center; gap:8px;">
+    <button id="toQ1FromQ2">Retour Q1</button>
+    <button id="doCorrection">Correction</button>
+  </div>
+</div>
+
+<!-- PAGE CORRECTION -->
+<div id="page-correction" class="section" style="display:none;">
+  <div class="page-mode" id="modeDisplayCorrection"></div>
+    <h1 style="text-align:center; color:var(--orange);">Correction et score</h1>
+    
+  <div style="text-align:center; font-weight:700; margin-bottom:8px;">Résumé de l'évaluation</div>
+
+    <div class="correction-summary-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+    <div class="summary-card qblock">
+      <div class="score-row"><div class="label">Nom de l'élève :</div><div id="nameDisplay" class="value">—</div></div>
+      <div class="score-row"><div class="label">Date :</div><div id="dateDisplay" class="value">—</div></div>
+      <div class="score-row"><div class="label">Heure :</div><div id="timeDisplay" class="value">—</div></div>
+    </div>
+    <div class="summary-card qblock">
+      <div class="score-row"><div class="label">Score Q1 :</div><div id="scoreQ1Display" class="value">—</div></div>
+      <div class="score-row"><div class="label">Score Q2 :</div><div id="scoreQ2Display" class="value">—</div></div>
+      <div class="score-row"><div class="label">Total :</div><div id="totalDisplay" class="value">—</div></div>
+      <div class="score-row"><div class="label">Note sur 20 :</div><div id="noteDisplay" class="value">—</div></div>
+    </div>
+  </div>
+
+  <div id="correctionTables" style="margin-top:18px;"></div>
+  <div style="margin-top:12px; display:flex; justify-content:center;"><button id="finishBack">Terminer (retour accueil)</button></div>
+</div>
+
+<script>
+// Configuration minimale
+const CONFIG_FIXED = {
+  REQUIRE_AUTH: true,
+  AUTHORIZED_CANDIDATES: {
+    "Professeur": ["MARINO","CHARDON","CHIOTTI","MATHIEU","MAUSSION"],
+    "1 cetpc": ["FONELLERAS","BONTEMPS","BRIATORE","BUCCIO","DIONISI","ERETEO","GARNERO","GRISONI","GUENEAU","HADANGUE","LACROIX","LEJEUNE","MAAZAOUI","MARTINEAU","MONELLO","PI-BUTHION","QUILICO","REMY","SANTIAGO","SCIARAFFA","THEVENET","TRUFFE","VILLEROY"],
+    "2 cetpc": ["ALBERT","AUDISIO","BABA","BERTOLOTTO","BOUCHEE","BOUFFART","BOURGUIGNON","BOUSQUET","CAPPADORO","COLPAERT","CULMINE","DOYEN","GAALOUL","GEORGE","GUEURUNURIAN","MONTEIRO","PAGE","PALAGONIA","PELLET","PONZO","PRUVOST","RICHARD","TETI"]
+  }
+};
+
+// URL du Web App Google Apps Script (utilisée pour envoi et vérifications)
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzvjvoSsK1moOW6peV35ehUmixY0dj9M_1oS5ybw9rJ1MWlYpUxam0QRE-BIKlw6GkGUw/exec';
+
+let state = { mode: 'application', altRef: 48.235, releves: [] };
+
+function showPage(id){
+  document.querySelectorAll('.section').forEach(s=>s.style.display='none');
+  const el = document.getElementById(id);
+  if(el) el.style.display='block';
+}
+
+function resetAccueilPage(){
+  const candidateInput = document.getElementById('candidate');
+  const msgEl = document.getElementById('verificationMessage');
+  if(candidateInput) candidateInput.value = '';
+  if(msgEl) {
+    msgEl.textContent = '';
+    msgEl.style.animation = '';
+  }
+  updateAuthState();
+}
+
+function updateAuthState(){
+  const name = document.getElementById('candidate').value.trim().toUpperCase();
+  const auth = CONFIG_FIXED.AUTHORIZED_CANDIDATES;
+  const ok = !CONFIG_FIXED.REQUIRE_AUTH || (
+    Array.isArray(auth) ? auth.includes(name) : Object.values(auth).some(group => Array.isArray(group) && group.includes(name))
+  );
+  document.getElementById('startBtn').disabled = !ok;
+  document.getElementById('trainingBtn').disabled = !ok;
+  document.getElementById('evalBtn').disabled = !ok;
+}
+
+function seedFixedApplication(){
+  state.mode = 'application';
+  state.altRef = 48.235;
+  state.releves = [
+    ['Station 1','Point 1',1587,1542,1497],
+    ['','Point 2',1600,1507,1415],
+    ['Station 2','Point 2',1570,1482,1395],
+    ['','Point 3',1542,1483,1422],
+    ['Station 3','Point 3',1609,1529,1447],
+    ['','Point 4',1679,1585,1493],
+    ['Station 4','Point 4',1620,1500,1380],
+    ['','Point 5',1762,1650,1542],
+    ['Station 5','Point 5',1523,1450,1380],
+    ['','Point 6',1652,1581,1507],
+    ['Station 6','Point 6',1828,1680,1533],
+    ['','Point F',1473,1380,1288]
+  ];
+}
+
+function generateRandomData(){
+  state.mode = state.mode === 'evaluation' ? 'evaluation' : 'training';
+  state.altRef = (20 + Math.random()*35).toFixed(3);
+  state.releves = [];
+  
+  // Générer un cheminement avec 6 stations (Point 1 à Point F)
+  const points = ['Point 1', 'Point 2', 'Point 3', 'Point 4', 'Point 5', 'Point 6', 'Point F'];
+  
+  for(let i=0; i<6; i++){
+    // Visée arrière (lecture sur le point précédent)
+    let LnArr = randInt(1000, 3000);
+    let deltaArr = randInt(20, 300);
+    let bArr = randInt(-5, 5);
+    let LshArr = LnArr + deltaArr + bArr;
+    let LsbArr = LnArr - deltaArr + bArr;
+    
+    state.releves.push([`Station ${i+1}`, points[i], LshArr, LnArr, LsbArr]);
+    
+    // Visée avant (lecture sur le point suivant)
+    let LnAv = randInt(1000, 3000);
+    let deltaAv = randInt(20, 300);
+    let bAv = randInt(-5, 5);
+    let LshAv = LnAv + deltaAv + bAv;
+    let LsbAv = LnAv - deltaAv + bAv;
+    
+    state.releves.push(['', points[i+1], LshAv, LnAv, LsbAv]);
+  }
+}
+
+function randInt(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
+
+function fillPresentation(){
+  // Présentation principale
+  document.getElementById('altrefDisplay').textContent = Number(state.altRef).toFixed(3);
+  const ml = document.getElementById('modeLabel');
+  if(ml) ml.textContent = formatMode(state.mode);
+  // Mettre à jour les affichages du mode pour chaque page
+  if(typeof updateModeDisplays === 'function') updateModeDisplays();
+  const fillTable = (tableId)=>{
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    state.releves.forEach(r=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="padding:6px;">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td>`;
+      tbody.appendChild(tr);
+    });
+  };
+  fillTable('relevesTable');
+  // Remplir Q1
+  const altq1 = document.getElementById('altrefDisplayQ1'); if(altq1) altq1.textContent = Number(state.altRef).toFixed(3);
+  const modeq1 = document.getElementById('modeLabelQ1'); if(modeq1) modeq1.textContent = formatMode(state.mode);
+  fillTable('relevesTableQ1');
+  // Remplir Q2
+  const altq2 = document.getElementById('altrefDisplayQ2'); if(altq2) altq2.textContent = Number(state.altRef).toFixed(3);
+  const modeq2 = document.getElementById('modeLabelQ2'); if(modeq2) modeq2.textContent = formatMode(state.mode);
+  fillTable('relevesTableQ2');
+}
+
+function buildQ1(){
+  const c = document.getElementById('q1Container');
+  c.innerHTML = '';
+  // Create a compact table for responses - one row per reading
+  const table = document.createElement('table');
+  table.className = 'resp-table';
+  let rows = '';
+  state.releves.forEach((r, idx) => {
+    const station = r[0] || '';
+    const point = r[1];
+    rows += `<tr>
+      <td>${station}</td>
+      <td>${point}</td>
+      <td><input id="chk_${idx}" type="number" class="resp-input" placeholder="" /></td>
+      <td><input id="chk_${idx}_ecart" type="number" class="resp-input" placeholder="" /></td>
+    </tr>`;
+  });
+  table.innerHTML = `
+    <thead>
+      <tr><th>Station</th><th>Point</th><th>Résultat de la vérification (mm)</th><th>Ecart de lecture (mm)</th></tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  `;
+  c.appendChild(table);
+}
+
+function buildQ2(){
+  const c = document.getElementById('q2Container');
+  c.innerHTML = '';
+  const table = document.createElement('table');
+  table.className = 'resp-table';
+  table.innerHTML = `
+    <thead>
+      <tr><th>Point</th><th>Altitude TN (m)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Point 2</td><td><input id="alt_p2" type="number" step="0.001" class="resp-input" /></td></tr>
+      <tr><td>Point 3</td><td><input id="alt_p3" type="number" step="0.001" class="resp-input" /></td></tr>
+      <tr><td>Point 4</td><td><input id="alt_p4" type="number" step="0.001" class="resp-input" /></td></tr>
+      <tr><td>Point 5</td><td><input id="alt_p5" type="number" step="0.001" class="resp-input" /></td></tr>
+      <tr><td>Point 6</td><td><input id="alt_p6" type="number" step="0.001" class="resp-input" /></td></tr>
+      <tr><td>Point F</td><td><input id="alt_pF" type="number" step="0.001" class="resp-input" /></td></tr>
+    </tbody>
+  `;
+  c.appendChild(table);
+}
+
+// Vérifier si un candidat a déjà réalisé l'évaluation via le Web App
+async function checkCandidateOnSheet(candidate){
+  if(!candidate) return null;
+  try{
+    const params = new URLSearchParams({ action: 'check', candidate });
+    const url = WEB_APP_URL + '?' + params.toString();
+    const resp = await fetch(url, { method: 'GET' });
+    if(!resp.ok) return null;
+    const ct = resp.headers.get('content-type') || '';
+    if(ct.indexOf('application/json') !== -1){
+      const data = await resp.json();
+      return !!data.exists;
+    }
+    const text = (await resp.text()).trim();
+    try{ const j = JSON.parse(text); if(typeof j.exists !== 'undefined') return !!j.exists; }catch(e){}
+    const t = text.toLowerCase();
+    if(t.indexOf('exists')!==-1 || t.indexOf('true')!==-1 || t.indexOf('oui')!==-1) return true;
+    return false;
+  }catch(err){
+    console.error('checkCandidateOnSheet error', err);
+    return null;
+  }
+}
+
+function computeCorrectionsAndGrade(){
+  const tol_mm = 5;
+  // Scoring: Q1 = 2 pts par ligne (résultat + écart) × 12 lignes = 24 pts, Q2 = 12 pts (2 pts par altitude), total = 36
+  const maxQ1 = state.releves.length * 2; // 2 points par ligne (résultat + écart)
+  const maxQ2 = 12;
+  const totalMax = maxQ1 + maxQ2;
+
+  let scoreQ1 = 0, scoreQ2 = 0;
+  const q1Details = [];
+  
+  // Q1: Vérifier toutes les lignes de relevés
+  state.releves.forEach((r, idx) => {
+    const station = r[0] || '';
+    const point = r[1];
+    const Lsh = r[2], Ln = r[3], Lsb = r[4];
+    const result = (Lsh + Lsb) / 2;
+    const ecart = Math.abs(result - Ln);
+    
+    const userRes = Number(document.getElementById('chk_' + idx)?.value || NaN);
+    const userEcart = Number(document.getElementById('chk_' + idx + '_ecart')?.value || NaN);
+    const okRes = !isNaN(userRes) && Math.abs(userRes - result) <= tol_mm;
+    const okEcart = !isNaN(userEcart) && Math.abs(userEcart - ecart) <= tol_mm;
+    
+    if(okRes) scoreQ1 += 1;
+    if(okEcart) scoreQ1 += 1;
+    
+    q1Details.push({station, point, result, ecart, okRes, okEcart});
+  });
+
+  // Q2: Calcul des altitudes par cheminement progressif
+  // Calculer les altitudes attendues pour chaque point
+  const altitudes = {};
+  altitudes['Point 1'] = Number(state.altRef); // Point de référence
+  
+  // Parcourir les stations (lignes paires = station avec arrière, lignes impaires = avant)
+  for(let i = 0; i < state.releves.length; i += 2) {
+    if(i+1 < state.releves.length) {
+      const ligneArr = state.releves[i];   // Visée arrière
+      const ligneAv = state.releves[i+1];  // Visée avant
+      const pointArr = ligneArr[1];
+      const pointAv = ligneAv[1];
+      const LnArr = ligneArr[3];
+      const LnAv = ligneAv[3];
+      
+      // Calculer l'altitude du point avant
+      if(altitudes[pointArr] !== undefined) {
+        const denivelee = (LnArr - LnAv) / 1000;
+        altitudes[pointAv] = altitudes[pointArr] + denivelee;
+      }
+    }
+  }
+  
+  // Vérifier les réponses de l'élève pour les points 2 à F
+  const pointsToCheck = ['Point 2', 'Point 3', 'Point 4', 'Point 5', 'Point 6', 'Point F'];
+  const pointIds = ['p2', 'p3', 'p4', 'p5', 'p6', 'pF'];
+  
+  pointsToCheck.forEach((point, idx) => {
+    if(altitudes[point] !== undefined) {
+      const expectedAlt = altitudes[point];
+      const userAlt = Number(document.getElementById('alt_' + pointIds[idx])?.value || NaN);
+      const ok = !isNaN(userAlt) && Math.abs(expectedAlt - userAlt) <= 0.005;
+      if(ok) scoreQ2 += 2;
+    }
+  });
+
+  // Build header summary (date/time + scores)
+  const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+  const dateStr = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  // Compute totals and note
+  const total = scoreQ1 + scoreQ2;
+  const note20 = Math.round((total/totalMax)*20*100)/100;
+
+  // Fill summary panel
+  const nameVal = document.getElementById('candidate').value || '';
+  document.getElementById('nameDisplay').textContent = nameVal;
+  document.getElementById('dateDisplay').textContent = dateStr;
+  document.getElementById('timeDisplay').textContent = timeStr;
+  document.getElementById('scoreQ1Display').textContent = `${scoreQ1}/${maxQ1}`;
+  document.getElementById('scoreQ2Display').textContent = `${scoreQ2}/${maxQ2}`;
+  document.getElementById('totalDisplay').textContent = `${total}/${totalMax}`;
+  document.getElementById('noteDisplay').textContent = `${note20}/20`;
+
+  // Fill detailed correction tables: Q1 table with corrected values only (no student responses)
+  const tables = document.getElementById('correctionTables');
+  let tableHtml = `
+    <h3 style="text-align:center">Correction vérifications des lectures</h3>
+    <div id="q1Container" style="margin-top:8px;">
+      <table class="resp-table">
+        <thead>
+          <tr><th>Station</th><th>Point</th><th>Résultat de la vérification (mm)</th><th>Ecart de lecture (mm)</th></tr>
+        </thead>
+        <tbody>
+  `;
+  q1Details.forEach(d => {
+    const resultText = (typeof d.result === 'number') ? `${Number(d.result).toFixed(1)}` : d.result;
+    const ecartText = (typeof d.ecart === 'number') ? `${Number(d.ecart).toFixed(1)}` : d.ecart;
+    tableHtml += `<tr><td style="padding:6px;">${d.station}</td><td>${d.point}</td><td>${resultText}</td><td>${ecartText}</td></tr>`;
+  });
+  tableHtml += `</tbody></table></div>`;
+  tables.innerHTML = tableHtml;
+
+  // Q2 details: table with Point | Altitude TN (m) — centered, without student responses
+  let q2TableHtml = `
+    <h3 style="margin-top:12px; text-align:center">Correction calcul des altitudes</h3>
+    <div style="margin-top:8px;">
+      <table class="resp-table">
+        <thead>
+          <tr><th>Point</th><th>Altitude TN (m)</th></tr>
+        </thead>
+        <tbody>
+  `;
+  // Afficher les altitudes calculées
+  pointsToCheck.forEach(point => {
+    if(altitudes[point] !== undefined) {
+      q2TableHtml += `<tr><td style="text-align:center">${point}</td><td>${altitudes[point].toFixed(3)}</td></tr>`;
+    }
+  });
+  q2TableHtml += `</tbody></table></div>`;
+  const q2wrapper = document.createElement('div');
+  q2wrapper.innerHTML = q2TableHtml;
+  tables.appendChild(q2wrapper);
+
+  showPage('page-correction');
+}
+
+// Event wiring
+document.getElementById('candidate').addEventListener('input', ()=>{
+  updateAuthState();
+  const msgEl = document.getElementById('verificationMessage');
+  if(msgEl) msgEl.textContent = '';
+});
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  seedFixedApplication(); fillPresentation(); buildQ1(); buildQ2(); showPage('page-presentation');
+});
+document.getElementById('trainingBtn').addEventListener('click', ()=>{
+  state.mode = 'training'; generateRandomData(); fillPresentation(); buildQ1(); buildQ2(); showPage('page-presentation');
+});
+document.getElementById('evalBtn').addEventListener('click', async ()=>{
+  const name = (document.getElementById('candidate')?.value || '').trim().toUpperCase();
+  const msgEl = document.getElementById('verificationMessage');
+  if(!name){ 
+    msgEl.textContent = 'Veuillez saisir votre nom avant de commencer l\'évaluation.';
+    msgEl.style.color = '#c62828';
+    msgEl.style.animation = '';
+    return; 
+  }
+  const btn = document.getElementById('evalBtn'); 
+  btn.disabled = true;
+  msgEl.textContent = 'Vérification en cours...';
+  msgEl.style.color = '#ff6600';
+  msgEl.style.animation = 'pulse 1.5s ease-in-out infinite';
+  
+  const exists = await checkCandidateOnSheet(name);
+  btn.disabled = false;
+  msgEl.style.animation = '';
+  
+  if(exists === true){
+    msgEl.textContent = 'Vous avez déjà réalisé l\'évaluation';
+    msgEl.style.color = '#c62828';
+    return;
+  }
+  if(exists === false){
+    msgEl.textContent = '';
+    state.mode = 'evaluation'; generateRandomData(); fillPresentation(); buildQ1(); buildQ2(); showPage('page-presentation');
+    return;
+  }
+  // exists === null -> impossible de vérifier
+  msgEl.textContent = 'Impossible de vérifier en ligne. Cliquez à nouveau pour continuer.';
+  msgEl.style.color = '#ff6600';
+  setTimeout(() => {
+    if(msgEl.textContent.indexOf('Impossible') !== -1){
+      state.mode = 'evaluation'; generateRandomData(); fillPresentation(); buildQ1(); buildQ2(); showPage('page-presentation');
+    }
+  }, 3000);
+});
+document.getElementById('toQ1').addEventListener('click', ()=>{ buildQ1(); showPage('page-q1'); });
+const toQ2Btn = document.getElementById('toQ2');
+if(toQ2Btn) toQ2Btn.addEventListener('click', ()=>{ buildQ2(); showPage('page-q2'); });
+document.getElementById('backHome').addEventListener('click', ()=>{ resetAccueilPage(); showPage('page-accueil'); });
+document.getElementById('toQ2FromQ1').addEventListener('click', ()=>{ buildQ2(); showPage('page-q2'); });
+document.getElementById('toPresentationFromQ1').addEventListener('click', ()=>{ showPage('page-presentation'); });
+document.getElementById('toQ1FromQ2').addEventListener('click', ()=>{ buildQ1(); showPage('page-q1'); });
+document.getElementById('doCorrection').addEventListener('click', ()=>{
+  // simulate send to Google Sheets (placeholder)
+  const btn = document.getElementById('doCorrection'); btn.disabled = true; btn.textContent = 'Envoi...';
+  setTimeout(()=>{ computeCorrectionsAndGrade();
+    // envoyer le résultat au Web App pour tous les modes
+    try{ sendResultToSheet(); }catch(e){ console.error('sendResultToSheet error', e); }
+    btn.disabled=false; btn.textContent='Correction';
+  }, 700);
+});
+document.getElementById('finishBack').addEventListener('click', ()=>{ resetAccueilPage(); showPage('page-accueil'); });
+
+// initial state
+updateAuthState();
+// initialiser les affichages du mode
+function formatMode(m){
+  if(!m) return '';
+  const s = String(m).toLowerCase();
+  if(s === 'training') return 'ENTRAÎNEMENT';
+  if(s === 'evaluation') return 'ÉVALUATION';
+  if(s === 'application') return 'APPLICATION';
+  try{ return String(m).toUpperCase(); }catch(e){ return ''; }
+}
+function updateModeDisplays(){
+  const txt = formatMode(state.mode);
+  ['modeDisplayAccueil','modeDisplayPresentation','modeDisplayQ1','modeDisplayQ2','modeDisplayCorrection'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = txt;
+  });
+}
+updateModeDisplays();
+// Envoi des résultats vers le Web App Google Apps Script
+// Formatage local du timestamp (jj/mm/aaaa HH:MM:SS)
+function formatClientTimestamp(d){
+  const dt = d instanceof Date ? d : new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
+}
+function sendResultToSheet(){
+  const candidate = (document.getElementById('candidate')?.value || '').trim().toUpperCase();
+  const rawNote = (document.getElementById('noteDisplay')?.textContent || '').toString();
+  const rawQ1 = (document.getElementById('scoreQ1Display')?.textContent || '').toString();
+  const rawQ2 = (document.getElementById('scoreQ2Display')?.textContent || '').toString();
+  const rawTotal = (document.getElementById('totalDisplay')?.textContent || '').toString();
+  const extractLeft = s => (s||'').split('/')[0].trim();
+  const payload = {
+    timestamp: formatClientTimestamp(new Date()),
+    candidate: candidate,
+    note20: extractLeft(rawNote),
+    scoreQ1: extractLeft(rawQ1),
+    scoreQ2: extractLeft(rawQ2),
+    total: extractLeft(rawTotal),
+    mode: state.mode || ''
+  };
+  // Envoi via GET (beacon image) pour éviter les problèmes CORS
+  try{
+    const params = new URLSearchParams();
+    Object.keys(payload).forEach(k => { params.append(k, payload[k]); });
+    const beaconUrl = WEB_APP_URL + '?' + params.toString();
+    const img = new Image();
+    img.onload = function(){ console.log('Données envoyées avec succès'); };
+    img.onerror = function(){ console.error('Erreur lors de l\'envoi'); };
+    img.src = beaconUrl;
+    console.log('Envoi vers:', beaconUrl);
+  }catch(err){
+    console.error('Erreur sendResultToSheet:', err);
+  }
+}
+// end sendResultToSheet
+</script>
+
